@@ -18,28 +18,29 @@ public class NettyServer {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         AttributeKey<Object> clientKey = AttributeKey.newInstance("clientKey");
         serverBootstrap
-                .group(bossGroup,workerGroup)
+                .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .attr(AttributeKey.newInstance("serverName"),"nettyServer")
-                .childAttr(clientKey,"clientValue")
-                .option(ChannelOption.SO_BACKLOG,1024)
-                .childOption(ChannelOption.SO_KEEPALIVE,true)
-                .childOption(ChannelOption.TCP_NODELAY,true)
+                .attr(AttributeKey.newInstance("serverName"), "nettyServer")
+                .childAttr(clientKey, "clientValue")
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                         System.out.println(nioSocketChannel.attr(clientKey).get());
                     }
                 });
-        bind(serverBootstrap,BEGIN_PORT);
+        bind(serverBootstrap, BEGIN_PORT);
     }
-    private static void bind(final ServerBootstrap serverBootstrap,final int port){
+
+    private static void bind(final ServerBootstrap serverBootstrap, final int port) {
         serverBootstrap.bind(port).addListener(future -> {
-            if (future.isSuccess()){
-                System.out.println("端口["+port+"]绑定成功！");
-            }else {
-                System.out.println("端口["+port+"]绑定失败！");
-                bind(serverBootstrap,port+1);
+            if (future.isSuccess()) {
+                System.out.println("端口[" + port + "]绑定成功！");
+            } else {
+                System.out.println("端口[" + port + "]绑定失败！");
+                bind(serverBootstrap, port + 1);
             }
         });
     }
