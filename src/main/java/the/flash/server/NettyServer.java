@@ -1,4 +1,4 @@
-package the.flash;
+package the.flash.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -6,7 +6,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.AttributeKey;
 
 public class NettyServer {
     private static final int BEGIN_PORT = 8000;
@@ -16,19 +15,17 @@ public class NettyServer {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
-        AttributeKey<Object> clientKey = AttributeKey.newInstance("clientKey");
+
         serverBootstrap
                 .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .attr(AttributeKey.newInstance("serverName"), "nettyServer")
-                .childAttr(clientKey, "clientValue")
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
-                    protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                        System.out.println(nioSocketChannel.attr(clientKey).get());
+                    protected void initChannel(NioSocketChannel nioSocketChannel) {
+                        nioSocketChannel.pipeline().addLast(new FirstServerHandler());
                     }
                 });
         bind(serverBootstrap, BEGIN_PORT);
