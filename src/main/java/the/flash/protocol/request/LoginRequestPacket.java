@@ -8,8 +8,6 @@ import static the.flash.protocol.command.Command.LOGIN_REQUEST;
 @Data
 public class LoginRequestPacket extends Packet {
 
-    private String userId;
-
     private String username;
 
     private String password;

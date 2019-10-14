@@ -1,7 +1,6 @@
 package the.flash.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -14,9 +13,10 @@ import the.flash.client.handler.MessageResponseHandler;
 import the.flash.codec.PacketDecoder;
 import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
-import the.flash.protocol.PacketCodeC;
+import the.flash.protocol.request.LoginRequestPacket;
 import the.flash.protocol.request.MessageRequestPacket;
-import the.flash.util.LoginUtil;
+import the.flash.server.handler.LoginRequestHandler;
+import the.flash.util.SessionUtil;
 
 import java.util.Date;
 import java.util.Scanner;
@@ -59,8 +59,8 @@ public class NettyClient {
     private static void connect(Bootstrap bootstrap, String host, int port, int retry) {
         bootstrap.connect(host, port).addListener(future -> {
             if (future.isSuccess()) {
-                System.out.println(new Date()+":连接成功,启动控制台程序......");
-                Channel channel = ((ChannelFuture)future).channel();
+                System.out.println(new Date() + ":连接成功,启动控制台程序......");
+                Channel channel = ((ChannelFuture) future).channel();
                 //开始控制台线程
                 startConsoleThread(channel);
 
@@ -79,15 +79,33 @@ public class NettyClient {
     }
 
     private static void startConsoleThread(Channel channel) {
+        Scanner sc = new Scanner(System.in);
+        LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
         new Thread(() -> {
             while (!Thread.interrupted()) {
-//               if (LoginUtil.hasLogin(channel)) {
-                    System.out.println("输入消息发送至服务端: ");
-                    Scanner sc = new Scanner(System.in);
-                    String line = sc.nextLine();
-                    channel.writeAndFlush(new MessageRequestPacket(line));
+                if (!SessionUtil.hasLogin(channel)) {
+                    System.out.print("输入用户名登录: ");
+                    String username = sc.nextLine();
+                    loginRequestPacket.setUsername(username);
+                    // 密码使用默认的
+                    loginRequestPacket.setPassword("pwd");
+
+                    channel.writeAndFlush(loginRequestPacket);
+                    waitForLoginResponse();
+                }else {
+                    String toUserId = sc.next();
+                    String message = sc.next();
+                    channel.writeAndFlush(new MessageRequestPacket(toUserId,message));
                 }
-//            }
+            }
         }).start();
+    }
+
+    public static void waitForLoginResponse() {
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
