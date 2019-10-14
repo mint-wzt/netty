@@ -19,7 +19,7 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
 
         if (loginResponsePacket.isSuccess()) {
             System.out.println("[" + userName + "]登录成功，userId 为: " + loginResponsePacket.getUserId());
-            SessionUtil.bindSeesion(new Session(userId,userName),channelHandlerContext.channel());
+            SessionUtil.bindSession(new Session(userId,userName),channelHandlerContext.channel());
         } else {
             System.out.println(new Date() + ": 客户端登录失败，原因：" + loginResponsePacket.getReason());
         }

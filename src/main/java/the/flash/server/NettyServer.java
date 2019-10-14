@@ -9,9 +9,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import the.flash.codec.PacketDecoder;
 import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
-import the.flash.server.handler.AuthHandler;
-import the.flash.server.handler.LoginRequestHandler;
-import the.flash.server.handler.MessageRequestHandler;
+import the.flash.server.handler.*;
 
 public class NettyServer {
     private static final int BEGIN_PORT = 8000;
@@ -36,6 +34,8 @@ public class NettyServer {
                         nioSocketChannel.pipeline().addLast(new LoginRequestHandler());
                         nioSocketChannel.pipeline().addLast(new AuthHandler());
                         nioSocketChannel.pipeline().addLast(new MessageRequestHandler());
+                        nioSocketChannel.pipeline().addLast(new CreateGroupRequestHandler());
+                        nioSocketChannel.pipeline().addLast(new LogoutRequestHandler());
                         nioSocketChannel.pipeline().addLast(new PacketEncoder());
                     }
                 });
