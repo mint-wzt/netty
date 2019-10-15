@@ -10,10 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import the.flash.client.console.ConsoleCommandMannager;
 import the.flash.client.console.LoginConsoleCommand;
-import the.flash.client.handler.CreateGroupResponseHandler;
-import the.flash.client.handler.LoginResponseHandler;
-import the.flash.client.handler.LogoutResponseHandler;
-import the.flash.client.handler.MessageResponseHandler;
+import the.flash.client.handler.*;
 import the.flash.codec.PacketDecoder;
 import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
@@ -54,6 +51,9 @@ public class NettyClient {
                         socketChannel.pipeline().addLast(new LogoutResponseHandler());
                         socketChannel.pipeline().addLast(new MessageResponseHandler());
                         socketChannel.pipeline().addLast(new CreateGroupResponseHandler());
+                        socketChannel.pipeline().addLast(new JoinGroupResponseHandler());
+                        socketChannel.pipeline().addLast(new ListGroupMemberResponseHandler());
+                        socketChannel.pipeline().addLast(new QuitGroupResponseHandler());
                         socketChannel.pipeline().addLast(new PacketEncoder());
                     }
                 });
@@ -91,9 +91,9 @@ public class NettyClient {
         new Thread(() -> {
             while (!Thread.interrupted()) {
                 if (!SessionUtil.hasLogin(channel)) {
-                    loginConsoleCommand.exc(scanner,channel);
-                }else {
-                    consoleCommandMannager.exc(scanner,channel);
+                    loginConsoleCommand.exc(scanner, channel);
+                } else {
+                    consoleCommandMannager.exc(scanner, channel);
                 }
             }
         }).start();
