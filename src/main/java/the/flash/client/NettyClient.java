@@ -14,6 +14,7 @@ import the.flash.client.handler.*;
 import the.flash.codec.PacketDecoder;
 import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
+import the.flash.handler.IMIdleStateHandler;
 import the.flash.protocol.request.LoginRequestPacket;
 import the.flash.protocol.request.MessageRequestPacket;
 import the.flash.server.handler.LoginRequestHandler;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class NettyClient {
     private static final int MAX_RETRY = 5;
     private static final String HOST = "127.0.0.1";
-    private static final int PORT = 8000;
+    private static final int PORT = 8001;
 
     public static void main(String[] args) {
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -45,6 +46,8 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) {
+                        // 空闲检测
+                        socketChannel.pipeline().addLast(new IMIdleStateHandler());
                         socketChannel.pipeline().addLast(new Spliter());
                         socketChannel.pipeline().addLast(new PacketDecoder());
                         socketChannel.pipeline().addLast(new LoginResponseHandler());
@@ -55,7 +58,10 @@ public class NettyClient {
                         socketChannel.pipeline().addLast(new ListGroupMemberResponseHandler());
                         socketChannel.pipeline().addLast(new QuitGroupResponseHandler());
                         socketChannel.pipeline().addLast(new GroupMessageResponseHandler());
+
                         socketChannel.pipeline().addLast(new PacketEncoder());
+                        // 心跳定时器
+                        socketChannel.pipeline().addLast(new HeartBeatTimeHandler());
                     }
                 });
 

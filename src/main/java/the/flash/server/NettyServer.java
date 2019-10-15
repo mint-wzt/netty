@@ -7,13 +7,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import the.flash.codec.PacketCodecHandler;
-import the.flash.codec.PacketDecoder;
-import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
+import the.flash.handler.IMIdleStateHandler;
 import the.flash.server.handler.*;
 
 public class NettyServer {
-    private static final int BEGIN_PORT = 8000;
+    private static final int BEGIN_PORT = 8001;
 
     public static void main(String[] args) {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -30,9 +29,11 @@ public class NettyServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) {
+                        nioSocketChannel.pipeline().addLast(new IMIdleStateHandler());
                         nioSocketChannel.pipeline().addLast(new Spliter());
                         nioSocketChannel.pipeline().addLast(PacketCodecHandler.INSTANCE);
                         nioSocketChannel.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        nioSocketChannel.pipeline().addLast(HeartBeatRequestHandler.INSTANCE);
                         nioSocketChannel.pipeline().addLast(AuthHandler.INSTANCE);
                         nioSocketChannel.pipeline().addLast(IMHandler.INSTANCE);
                     }

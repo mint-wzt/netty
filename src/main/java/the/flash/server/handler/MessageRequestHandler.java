@@ -36,7 +36,7 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
         if (toUserChannel != null && SessionUtil.hasLogin(toUserChannel)) {
             toUserChannel.writeAndFlush(messageResponsePacket).addListener(future -> {
                 if (future.isDone()){
-                    
+
                 }
             });
         } else {
