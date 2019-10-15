@@ -1,6 +1,7 @@
 package the.flash.server.handler;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -12,7 +13,14 @@ import the.flash.util.SessionUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+@ChannelHandler.Sharable
 public class ListGroupRequestHandler extends SimpleChannelInboundHandler<ListGroupMemberRequestPacket> {
+    public static final ListGroupRequestHandler INSTANCE = new ListGroupRequestHandler();
+
+    private ListGroupRequestHandler() {
+
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, ListGroupMemberRequestPacket listGroupMemberRequestPacket) throws Exception {
         // 1. 获取群的 ChannelGroup
@@ -31,6 +39,6 @@ public class ListGroupRequestHandler extends SimpleChannelInboundHandler<ListGro
 
         responsePacket.setGroupId(groupId);
         responsePacket.setSessionList(sessionList);
-        channelHandlerContext.channel().writeAndFlush(responsePacket);
+        channelHandlerContext.writeAndFlush(responsePacket);
     }
 }

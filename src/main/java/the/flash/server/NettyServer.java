@@ -6,6 +6,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import the.flash.codec.PacketCodecHandler;
 import the.flash.codec.PacketDecoder;
 import the.flash.codec.PacketEncoder;
 import the.flash.codec.Spliter;
@@ -30,16 +31,10 @@ public class NettyServer {
                     @Override
                     protected void initChannel(NioSocketChannel nioSocketChannel) {
                         nioSocketChannel.pipeline().addLast(new Spliter());
-                        nioSocketChannel.pipeline().addLast(new PacketDecoder());
-                        nioSocketChannel.pipeline().addLast(new LoginRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new AuthHandler());
-                        nioSocketChannel.pipeline().addLast(new MessageRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new CreateGroupRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new ListGroupRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new JoinGroupRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new QuitGroupRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new LogoutRequestHandler());
-                        nioSocketChannel.pipeline().addLast(new PacketEncoder());
+                        nioSocketChannel.pipeline().addLast(PacketCodecHandler.INSTANCE);
+                        nioSocketChannel.pipeline().addLast(LoginRequestHandler.INSTANCE);
+                        nioSocketChannel.pipeline().addLast(AuthHandler.INSTANCE);
+                        nioSocketChannel.pipeline().addLast(IMHandler.INSTANCE);
                     }
                 });
         bind(serverBootstrap, BEGIN_PORT);

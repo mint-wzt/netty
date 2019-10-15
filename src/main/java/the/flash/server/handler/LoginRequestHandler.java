@@ -1,5 +1,6 @@
 package the.flash.server.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import the.flash.protocol.request.LoginRequestPacket;
@@ -10,7 +11,13 @@ import the.flash.util.SessionUtil;
 import java.util.Date;
 import java.util.UUID;
 
+@ChannelHandler.Sharable
 public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+    public static final LoginRequestHandler INSTANCE = new LoginRequestHandler();
+
+    protected LoginRequestHandler() {
+    }
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LoginRequestPacket packet) {
@@ -33,7 +40,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
             System.out.println(new Date() + ":登录失败！");
         }
         //写数据
-        channelHandlerContext.channel().writeAndFlush(loginResponsePacket);
+        channelHandlerContext.writeAndFlush(loginResponsePacket);
     }
 
     private boolean valid(LoginRequestPacket packet) {
